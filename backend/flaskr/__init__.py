@@ -23,9 +23,6 @@ def create_app(test_config=None):
     app = Flask(__name__)
     setup_db(app)
 
-    '''
-  @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
-  '''
     CORS(app, resources={r"/api/*": {"origins": "*"}})
     '''
   @TODO: Use the after_request decorator to set Access-Control-Allow
@@ -136,14 +133,15 @@ def create_app(test_config=None):
 
         else:
 
-            if (form_data['question'].strip() == "") or (form_data['answer'].strip() == ""):
+            if(form_data['question'].strip() == "") or (form_data['answer'].strip() == ""):
                 abort(400)
 
             try:
                 new_question = Question(question=form_data['question'].strip(), answer=form_data['answer'].strip(),
                                         category=form_data['category'], difficulty=form_data['difficulty'])
                 new_question.insert()
-            except Exception:
+            except Exception as ex:
+                # print(ex)
                 abort(422)
 
             return jsonify({
@@ -220,11 +218,6 @@ def create_app(test_config=None):
             'question': question
         })
 
-    '''
-  @TODO: 
-  Create error handlers for all expected errors 
-  including 404 and 422. 
-  '''
     @app.errorhandler(404)
     def not_found(error):
         return jsonify({
