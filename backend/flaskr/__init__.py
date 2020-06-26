@@ -50,7 +50,8 @@ def create_app(test_config=None):
                 "categories": caty_dict
             })
 
-        except:
+        except Exception as e:
+            print(e)
             abort(500)
 
     '''
@@ -106,7 +107,7 @@ def create_app(test_config=None):
                     'success': True,
                     'deleted': q_id
                 })
-            except:
+            except Exception:
                 abort(422)
 
     '''
@@ -142,7 +143,7 @@ def create_app(test_config=None):
                 new_question = Question(question=form_data['question'].strip(), answer=form_data['answer'].strip(),
                                         category=form_data['category'], difficulty=form_data['difficulty'])
                 new_question.insert()
-            except:
+            except Exception:
                 abort(422)
 
             return jsonify({
@@ -186,7 +187,7 @@ def create_app(test_config=None):
         request_data = request.json
         try:
             request_cat = request_data['quiz_category']['id']
-        except:
+        except Exception:
             abort(400)
 
         if request_cat == 0:
@@ -199,7 +200,7 @@ def create_app(test_config=None):
 
         try:
             prev_qs = request_data['previous_questions']
-        except:
+        except Exception:
             abort(400)
 
         pruned_qs = []

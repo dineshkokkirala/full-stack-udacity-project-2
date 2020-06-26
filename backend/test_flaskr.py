@@ -126,50 +126,12 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['error'], 400)
 
-    def test_post_new_question(self):
-        """POST a new question and make sure it's in there on the last page"""
-        all_questions = Question.query.all()
-        orig_num_questions = len(all_questions)
-        self.assertEqual(orig_num_questions, 19)
-
-        res = self.client().post('/api/questions', json=self.new_question)
-        data = json.loads(res.data)
-        nq_id = data['added']
-
-        self.assertEqual(data['success'], True)
-
-        all_questions = Question.query.all()
-        self.assertEqual(len(all_questions), orig_num_questions + 1)
-
-        res = self.client().delete(f'/api/questions/{nq_id}')
-        data = json.loads(res.data)
-
-        self.assertEqual(data['success'], True)
-        self.assertEqual(data['deleted'], nq_id)
-
     def test_invalid_delete_question(self):
         """Try to delete a question that doesn't exist, should get a 404 error"""
         res = self.client().delete(f'/api/questions/1000')
         data = json.loads(res.data)
 
         self.assertEqual(data['error'], 404)
-
-    def test_delete_question(self):
-        """Create a new question, then test deleting it"""
-
-        new_question = Question(question=self.new_question['question'], answer=self.new_question['answer'],
-                                category=self.new_question['category'], difficulty=self.new_question['difficulty'])
-        new_question.insert()
-        nq_id = new_question.id
-
-        all_questions = Question.query.all()
-        self.assertEqual(len(all_questions), 20)
-
-        res = self.client().delete(f'/api/questions/{nq_id}')
-        data = json.loads(res.data)
-
-        self.assertEqual(data['success'], True)
-        self.assertEqual(data['deleted'], nq_id)
 
     def test_pagination(self):
         """Tests the pagination by getting page 2 and looking for known features"""
