@@ -33,7 +33,7 @@ class TriviaTestCase(unittest.TestCase):
     Write at least one test for each test for successful operation and for expected errors.
     """
 
-    def test_play_quiz_4(self):
+    def test_play_quiz_1(self):
         """Tests out the quiz playing functionality"""
         res = self.client().post('/api/quizzes',
                                  json={"previous_questions": [13], "quiz_category": {"type": "Geography"}})
@@ -41,30 +41,13 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['error'], 400)
 
-    def test_play_quiz_3(self):
+    def test_play_quiz_2(self):
         """Tests out the quiz playing functionality"""
         res = self.client().post('/api/quizzes',
                                  json={"previous_questions": [13, 14, 15], "quiz_category": {"type": "Geography", "id": "3"}})
         data = json.loads(res.data)
         self.assertEqual(data['success'], True)
         self.assertFalse('question' in data)
-
-    def test_play_quiz_2(self):
-        """Tests out the quiz playing functionality"""
-        res = self.client().post('/api/quizzes',
-                                 json={"previous_questions": [13, 14], "quiz_category": {"type": "Geography", "id": "3"}})
-        data = json.loads(res.data)
-        self.assertEqual(data['success'], True)
-        self.assertEqual(data['question']['id'], 15)
-
-    def test_play_quiz_1(self):
-        """Tests out the quiz playing functionality"""
-        res = self.client().post('/api/quizzes',
-                                 json={"previous_questions": [], "quiz_category": {"type": "Geography", "id": "3"}})
-        data = json.loads(res.data)
-        self.assertEqual(data['success'], True)
-        self.assertIsNotNone(data['question'])
-        self.assertEqual(data['question']['category'], 3)
 
     def test_get_categories(self):
         """Gets the /api/categories endpoint and checks valid results"""
@@ -125,6 +108,26 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(data['success'], False)
         self.assertEqual(data['error'], 400)
+
+    def test_post_new_question(self):
+        """POST a new question and make sure it's in there on the last page"""
+        all_questions = Question.query.all()
+        orig_num_questions = len(all_questions)
+        self.assertEqual(orig_num_questions, 19)
+        res = self.client().post('/api/questions', json=self.new_question)
+        data = json.loads(res.data)
+        nq_id = data['added']
+
+        self.assertEqual(data['success'], True)
+
+        all_questions = Question.query.all()
+        self.assertEqual(len(all_questions), orig_num_questions + 1)
+
+        res = self.client().delete(f'/api/questions/{nq_id}')
+        data = json.loads(res.data)
+
+        self.assertEqual(data['success'], True)
+        self.assertEqual(data['deleted'], nq_id)
 
     def test_invalid_delete_question(self):
         """Try to delete a question that doesn't exist, should get a 404 error"""
